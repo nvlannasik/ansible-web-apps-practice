@@ -1,0 +1,11 @@
+- name: Deploy web app with ansible
+  hosts: node
+  tasks:
+    - name: update repository
+      shell: apt-get update
+
+    - name: install apache2
+      apt: name=apache2 state=present
+
+    - name: start apache2
+      service: name=apache2 state=started enabled=yes
