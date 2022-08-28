@@ -1,0 +1,72 @@
+- name: Automation install LAMP
+  hosts: node
+  vars:
+    db_name: app_db
+    db_user: app_user
+    db_pass: app_pass
+  tasks:
+    - name: stop service apache2
+      service:
+        name: apache2
+        state: stopped
+
+    - name: update repository
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install dependencies
+      apt:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - python3
+        - python3-setuptools
+        - python3-dev
+        - build-essential
+        - python3-pip
+        - python3-mysqldb
+
+    - name: Install MySQL Database
+      apt:
+        name: '{{ item }}'
+        state: present
+      with_items:
+        - mysql-server
+        - mysql-client
+
+    - name: Start service MySQL
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Create app db
+      mysql_db:
+        name: "{{ db_name }}"
+        state: present
+
+    - name: Create app user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_pass }}"
+        state: present
+        priv: "*.*:ALL"
+        host: "%"
+        state: present
+
+    - name: install flask
+      pip:
+        name: '{{item}}'
+        state: present
+      with_items:
+        - flask
+        - flask-mysql
+
+    - name: copy flask file
+      copy:
+        src: app.py
+        dest: /opt/app.py
+
+    - name: start web app
+      shell: FLASK_APP=app.py nohup flask run --host=0.0.0.0 &
