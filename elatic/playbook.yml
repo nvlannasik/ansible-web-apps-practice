@@ -1,0 +1,35 @@
+- name: Instalasi elastic search
+  hosts: node-2
+  tasks:
+    # - name: download and install public signing key
+    #   shell: wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo gpg --dearmor -o /usr/share/keyrings/elasticsearch-keyring.gpg
+
+    # - name: install apt-transport-https
+    #   apt:
+    #     name: apt-transport-https
+    #     state: present
+
+    # - name: Save repository configuration
+    #   shell: echo "deb [signed-by=/usr/share/keyrings/elasticsearch-keyring.gpg] https://artifacts.elastic.co/packages/8.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-8.x.list
+
+    # - name: update repository
+    #   apt:
+    #     update_cache: yes
+    #     cache_valid_time: 3600
+
+    # - name: Install elasticsearch
+    #   apt:
+    #     name: elasticsearch
+    #     state: present
+
+    - name: konfigurasi elasticsearch.yml cluster name
+      replace:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^#(.*cluster.name:elk-cluster*)'
+        replace: 'cluster.name: elk-coba'
+
+    - name: konfigurasi elasticsearch.yml network host
+      replace:
+        path: /etc/elasticsearch/elasticsearch.yml
+        regexp: '^#(.*network.host: 192.168.0.1*)'
+        replace: 'network.host: {{ ansible_default_ipv4.address }}'
